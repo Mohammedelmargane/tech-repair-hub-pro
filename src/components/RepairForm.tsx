@@ -1,106 +1,37 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from 'sonner';
-import { 
-  Customer, 
-  RepairTicket,
-  addRepair, 
-  updateRepair,
-  customers
-} from '@/data/mockData';
+import { RepairTicket, addRepair, updateRepair } from '@/data/mockData';
+import { RepairFormProvider, useRepairForm } from '@/contexts/RepairFormContext';
+
+// Import form sections
+import CustomerSection from './repair-form/CustomerSection';
+import DeviceInfoSection from './repair-form/DeviceInfoSection';
+import PriorityAndDateSection from './repair-form/PriorityAndDateSection';
+import ProblemDescriptionSection from './repair-form/ProblemDescriptionSection';
+import CostAndStatusSection from './repair-form/CostAndStatusSection';
+import NotesSection from './repair-form/NotesSection';
 
 interface RepairFormProps {
   customerId?: string;
   repairToEdit?: RepairTicket;
 }
 
-const RepairForm: React.FC<RepairFormProps> = ({ customerId, repairToEdit }) => {
+// Inner component that uses the context
+const RepairFormContent: React.FC = () => {
   const navigate = useNavigate();
-  const isEditing = !!repairToEdit;
-  
-  const [formData, setFormData] = useState<{
-    customerId: string;
-    deviceType: string;
-    brand: string;
-    model: string;
-    serialNumber: string;
-    problemDescription: string;
-    status: 'pending' | 'in-progress' | 'completed' | 'cancelled';
-    estimatedCost: number;
-    finalCost: number | null;
-    notes: string;
-    priority: 'low' | 'medium' | 'high';
-    estimatedCompletionDate: string;
-    paymentStatus: 'unpaid' | 'partial' | 'paid';
-    amountPaid: number;
-  }>({
-    customerId: customerId || '',
-    deviceType: '',
-    brand: '',
-    model: '',
-    serialNumber: '',
-    problemDescription: '',
-    status: 'pending',
-    estimatedCost: 0,
-    finalCost: null,
-    notes: '',
-    priority: 'medium',
-    estimatedCompletionDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Default to 3 days from now
-    paymentStatus: 'unpaid',
-    amountPaid: 0
-  });
-
-  useEffect(() => {
-    if (repairToEdit) {
-      setFormData({
-        ...repairToEdit,
-        priority: repairToEdit.priority || 'medium',
-        estimatedCompletionDate: repairToEdit.estimatedCompletionDate || 
-          new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        paymentStatus: repairToEdit.paymentStatus || 'unpaid',
-        amountPaid: repairToEdit.amountPaid || 0
-      });
-    }
-  }, [repairToEdit]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleSelectChange = (name: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value === '' ? 0 : parseFloat(value)
-    }));
-  };
+  const { formData, isEditing } = useRepairForm();
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     try {
-      if (isEditing && repairToEdit) {
+      if (isEditing) {
         const updatedRepair = updateRepair({
-          ...repairToEdit,
-          ...formData
+          ...formData as RepairTicket
         });
         toast.success("Repair ticket updated");
         navigate(`/customer/${updatedRepair.customerId}`);
@@ -122,217 +53,14 @@ const RepairForm: React.FC<RepairFormProps> = ({ customerId, repairToEdit }) => 
       </CardHeader>
       <form onSubmit={handleSubmit}>
         <CardContent className="space-y-4">
-          {!customerId && (
-            <div className="space-y-2">
-              <Label htmlFor="customerId">Customer</Label>
-              <Select 
-                value={formData.customerId} 
-                onValueChange={(value) => handleSelectChange('customerId', value)}
-                disabled={isEditing}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a customer" />
-                </SelectTrigger>
-                <SelectContent>
-                  {customers.map((customer: Customer) => (
-                    <SelectItem key={customer.id} value={customer.id}>
-                      {customer.name} ({customer.id})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
+          {!formData.customerId && <CustomerSection />}
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="deviceType">Device Type</Label>
-              <Input 
-                id="deviceType" 
-                name="deviceType" 
-                placeholder="Laptop, Desktop, etc."
-                value={formData.deviceType}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="brand">Brand</Label>
-              <Input 
-                id="brand" 
-                name="brand" 
-                placeholder="Dell, HP, Apple, etc."
-                value={formData.brand}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="model">Model</Label>
-              <Input 
-                id="model" 
-                name="model" 
-                placeholder="XPS 15, ThinkPad X1, etc."
-                value={formData.model}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="serialNumber">Serial Number</Label>
-              <Input 
-                id="serialNumber" 
-                name="serialNumber" 
-                placeholder="SN12345678"
-                value={formData.serialNumber}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="priority">Priority</Label>
-              <Select 
-                value={formData.priority} 
-                onValueChange={(value: 'low' | 'medium' | 'high') => 
-                  handleSelectChange('priority', value)}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="low">Low</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="high">High</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="estimatedCompletionDate">Estimated Completion Date</Label>
-              <Input 
-                id="estimatedCompletionDate" 
-                name="estimatedCompletionDate" 
-                type="date"
-                value={formData.estimatedCompletionDate}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            
-            <div className="space-y-2 md:col-span-2">
-              <Label htmlFor="problemDescription">Problem Description</Label>
-              <Textarea 
-                id="problemDescription" 
-                name="problemDescription" 
-                placeholder="Describe the issue with the device"
-                value={formData.problemDescription}
-                onChange={handleChange}
-                rows={3}
-                required
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="estimatedCost">Estimated Cost ($)</Label>
-              <Input 
-                id="estimatedCost" 
-                name="estimatedCost" 
-                type="number"
-                min="0"
-                step="0.01"
-                value={formData.estimatedCost}
-                onChange={handleNumberChange}
-                required
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="status">Status</Label>
-              <Select 
-                value={formData.status} 
-                onValueChange={(value: 'pending' | 'in-progress' | 'completed' | 'cancelled') => 
-                  handleSelectChange('status', value)}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="in-progress">In Progress</SelectItem>
-                  <SelectItem value="completed">Completed</SelectItem>
-                  <SelectItem value="cancelled">Cancelled</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="paymentStatus">Payment Status</Label>
-              <Select 
-                value={formData.paymentStatus} 
-                onValueChange={(value: 'unpaid' | 'partial' | 'paid') => 
-                  handleSelectChange('paymentStatus', value)}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="unpaid">Unpaid</SelectItem>
-                  <SelectItem value="partial">Partial Payment</SelectItem>
-                  <SelectItem value="paid">Paid</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="amountPaid">Amount Paid ($)</Label>
-              <Input 
-                id="amountPaid" 
-                name="amountPaid" 
-                type="number"
-                min="0"
-                step="0.01"
-                value={formData.amountPaid}
-                onChange={handleNumberChange}
-                required
-              />
-            </div>
-            
-            {formData.status === 'completed' && (
-              <div className="space-y-2">
-                <Label htmlFor="finalCost">Final Cost ($)</Label>
-                <Input 
-                  id="finalCost" 
-                  name="finalCost" 
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={formData.finalCost || ''}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    setFormData(prev => ({
-                      ...prev,
-                      finalCost: value === '' ? null : parseFloat(value)
-                    }));
-                  }}
-                />
-              </div>
-            )}
-            
-            <div className="space-y-2 md:col-span-2">
-              <Label htmlFor="notes">Notes</Label>
-              <Textarea 
-                id="notes" 
-                name="notes" 
-                placeholder="Additional notes about the repair"
-                value={formData.notes}
-                onChange={handleChange}
-                rows={3}
-              />
-            </div>
+            <DeviceInfoSection />
+            <PriorityAndDateSection />
+            <ProblemDescriptionSection />
+            <CostAndStatusSection />
+            <NotesSection />
           </div>
         </CardContent>
         
@@ -346,6 +74,15 @@ const RepairForm: React.FC<RepairFormProps> = ({ customerId, repairToEdit }) => 
         </CardFooter>
       </form>
     </Card>
+  );
+};
+
+// The main component that provides the context
+const RepairForm: React.FC<RepairFormProps> = ({ customerId, repairToEdit }) => {
+  return (
+    <RepairFormProvider customerId={customerId} repairToEdit={repairToEdit}>
+      <RepairFormContent />
+    </RepairFormProvider>
   );
 };
 
