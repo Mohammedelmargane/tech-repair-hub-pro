@@ -21,6 +21,10 @@ export interface RepairTicket {
   createdAt: string;
   updatedAt: string;
   notes: string;
+  priority?: 'low' | 'medium' | 'high';
+  estimatedCompletionDate?: string;
+  paymentStatus?: 'unpaid' | 'partial' | 'paid';
+  amountPaid?: number;
 }
 
 // Demo data
@@ -62,7 +66,11 @@ export const repairs: RepairTicket[] = [
     finalCost: null,
     createdAt: "2025-04-05T10:30:00Z",
     updatedAt: "2025-04-05T14:20:00Z",
-    notes: "Diagnosed as faulty power supply. Ordered replacement part."
+    notes: "Diagnosed as faulty power supply. Ordered replacement part.",
+    priority: "medium",
+    estimatedCompletionDate: "2025-04-08",
+    paymentStatus: "unpaid",
+    amountPaid: 0
   },
   {
     id: "R002",
@@ -77,7 +85,11 @@ export const repairs: RepairTicket[] = [
     finalCost: 95,
     createdAt: "2025-03-28T09:15:00Z",
     updatedAt: "2025-03-29T16:45:00Z",
-    notes: "Replaced faulty RAM stick. System now stable."
+    notes: "Replaced faulty RAM stick. System now stable.",
+    priority: "low",
+    estimatedCompletionDate: "2025-03-30",
+    paymentStatus: "paid",
+    amountPaid: 95
   },
   {
     id: "R003",
@@ -92,7 +104,11 @@ export const repairs: RepairTicket[] = [
     finalCost: null,
     createdAt: "2025-04-06T13:20:00Z",
     updatedAt: "2025-04-06T13:20:00Z",
-    notes: "Awaiting customer approval for keyboard replacement."
+    notes: "Awaiting customer approval for keyboard replacement.",
+    priority: "high",
+    estimatedCompletionDate: "2025-04-10",
+    paymentStatus: "partial",
+    amountPaid: 100
   }
 ];
 
