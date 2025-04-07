@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useContext, ReactNode } from 'react';
 import { RepairTicket } from '@/data/mockData';
 
@@ -17,6 +16,7 @@ type RepairFormData = {
   estimatedCompletionDate: string;
   paymentStatus: 'unpaid' | 'partial' | 'paid';
   amountPaid: number;
+  repairNotes?: string;
 };
 
 type RepairFormContextType = {
@@ -40,9 +40,10 @@ const defaultFormData: RepairFormData = {
   finalCost: null,
   notes: '',
   priority: 'medium',
-  estimatedCompletionDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Default to 3 days from now
+  estimatedCompletionDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
   paymentStatus: 'unpaid',
-  amountPaid: 0
+  amountPaid: 0,
+  repairNotes: '[]'
 };
 
 const RepairFormContext = createContext<RepairFormContextType | undefined>(undefined);
@@ -76,7 +77,8 @@ export const RepairFormProvider: React.FC<RepairFormProviderProps> = ({
         estimatedCompletionDate: repairToEdit.estimatedCompletionDate || 
           new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         paymentStatus: repairToEdit.paymentStatus || 'unpaid',
-        amountPaid: repairToEdit.amountPaid || 0
+        amountPaid: repairToEdit.amountPaid || 0,
+        repairNotes: repairToEdit.repairNotes || '[]'
       };
     }
     

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, Trash2 } from 'lucide-react';
 import { useRepairForm } from '@/contexts/RepairFormContext';
 import { Card, CardContent } from '@/components/ui/card';
-import { Separator } from '@/components/ui/table';
+import { Separator } from "@/components/ui/separator"; // Fixed import path
 
 interface RepairNote {
   timestamp: string;
