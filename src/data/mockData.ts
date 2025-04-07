@@ -25,6 +25,7 @@ export interface RepairTicket {
   estimatedCompletionDate?: string;
   paymentStatus?: 'unpaid' | 'partial' | 'paid';
   amountPaid?: number;
+  repairNotes?: string; // JSON string containing repair notes
 }
 
 // Demo data
@@ -70,7 +71,19 @@ export const repairs: RepairTicket[] = [
     priority: "medium",
     estimatedCompletionDate: "2025-04-08",
     paymentStatus: "unpaid",
-    amountPaid: 0
+    amountPaid: 0,
+    repairNotes: JSON.stringify([
+      {
+        timestamp: "2025-04-05T10:45:00Z",
+        text: "Initial diagnosis: power button responsive but no boot sequence. Tested with external power supply without battery - no response.",
+        technician: "John Tech"
+      },
+      {
+        timestamp: "2025-04-05T14:15:00Z",
+        text: "Opened laptop case. Found corroded connector on power board. Ordered replacement part #DL-758-PWR.",
+        technician: "John Tech"
+      }
+    ])
   },
   {
     id: "R002",
@@ -89,7 +102,24 @@ export const repairs: RepairTicket[] = [
     priority: "low",
     estimatedCompletionDate: "2025-03-30",
     paymentStatus: "paid",
-    amountPaid: 95
+    amountPaid: 95,
+    repairNotes: JSON.stringify([
+      {
+        timestamp: "2025-03-28T10:00:00Z",
+        text: "Ran memory diagnostic. Detected errors in DIMM slot 2. Removed RAM stick and system booted without errors.",
+        technician: "Sarah Tech"
+      },
+      {
+        timestamp: "2025-03-29T11:30:00Z",
+        text: "Installed new 8GB DDR4 RAM stick. Ran stress test for 2 hours - no errors detected.",
+        technician: "Sarah Tech"
+      },
+      {
+        timestamp: "2025-03-29T16:30:00Z",
+        text: "Final testing complete. System stable under load. Ready for pickup.",
+        technician: "Sarah Tech"
+      }
+    ])
   },
   {
     id: "R003",
@@ -108,7 +138,19 @@ export const repairs: RepairTicket[] = [
     priority: "high",
     estimatedCompletionDate: "2025-04-10",
     paymentStatus: "partial",
-    amountPaid: 100
+    amountPaid: 100,
+    repairNotes: JSON.stringify([
+      {
+        timestamp: "2025-04-06T13:30:00Z",
+        text: "Initial assessment: multiple keys (J, K, L, ;) not responding. Compressed air cleaning did not resolve issue.",
+        technician: "Mike Tech"
+      },
+      {
+        timestamp: "2025-04-06T14:15:00Z",
+        text: "Contacted customer with quote for keyboard replacement ($250). Customer requested time to consider options.",
+        technician: "Mike Tech"
+      }
+    ])
   }
 ];
 

@@ -1,11 +1,11 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { RepairTicket } from '@/data/mockData';
 import { formatDistanceToNow } from 'date-fns';
-import { Printer, AlertCircle, Clock, CreditCard } from 'lucide-react';
+import { Printer, AlertCircle, Clock, CreditCard, History } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 interface RepairTicketCardProps {
@@ -21,6 +21,12 @@ const RepairTicketCard: React.FC<RepairTicketCardProps> = ({
   customerName,
   onPrintLabel 
 }) => {
+  const [showFullNotes, setShowFullNotes] = useState(false);
+  const [showAllRepairNotes, setShowAllRepairNotes] = useState(false);
+
+  // Parse repair notes if they exist
+  const repairNotes = repair.repairNotes ? JSON.parse(repair.repairNotes) : [];
+  
   const getStatusClass = (status: string): string => {
     switch (status) {
       case 'pending': return 'repair-status-pending';
@@ -64,6 +70,17 @@ const RepairTicketCard: React.FC<RepairTicketCardProps> = ({
     } catch (error) {
       return 'Invalid date';
     }
+  };
+
+  const formatDetailedDate = (dateString: string) => {
+    const options: Intl.DateTimeFormatOptions = { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    };
+    return new Date(dateString).toLocaleString(undefined, options);
   };
   
   return (
@@ -153,7 +170,51 @@ const RepairTicketCard: React.FC<RepairTicketCardProps> = ({
         {repair.notes && (
           <div>
             <p className="font-semibold mb-1">Notes</p>
-            <p className="text-sm text-muted-foreground">{repair.notes}</p>
+            <p className="text-sm text-muted-foreground">
+              {showFullNotes || repair.notes.length <= 100 
+                ? repair.notes 
+                : `${repair.notes.substring(0, 100)}...`}
+              {repair.notes.length > 100 && (
+                <Button 
+                  variant="link" 
+                  size="sm" 
+                  onClick={() => setShowFullNotes(!showFullNotes)}
+                  className="px-0 h-auto"
+                >
+                  {showFullNotes ? 'Show Less' : 'Show More'}
+                </Button>
+              )}
+            </p>
+          </div>
+        )}
+        
+        {repairNotes.length > 0 && (
+          <div>
+            <div className="flex items-center justify-between">
+              <p className="font-semibold mb-1">Repair History</p>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowAllRepairNotes(!showAllRepairNotes)}
+                className="text-xs h-auto py-1"
+              >
+                <History className="h-3 w-3 mr-1" />
+                {showAllRepairNotes ? 'Hide History' : 'Show History'}
+              </Button>
+            </div>
+            
+            {showAllRepairNotes && (
+              <div className="space-y-2 pl-2 border-l-2 border-muted mt-2">
+                {repairNotes.map((note: any, index: number) => (
+                  <div key={index} className="text-sm">
+                    <p className="text-xs text-muted-foreground">
+                      {formatDetailedDate(note.timestamp)} - {note.technician}
+                    </p>
+                    <p>{note.text}</p>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </CardContent>
