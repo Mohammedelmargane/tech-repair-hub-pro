@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { RepairTicket } from '@/data/mockData';
 import { formatDistanceToNow } from 'date-fns';
-import { Printer } from 'lucide-react';
+import { Printer, AlertCircle, Clock, CreditCard } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 interface RepairTicketCardProps {
@@ -30,10 +30,37 @@ const RepairTicketCard: React.FC<RepairTicketCardProps> = ({
       default: return '';
     }
   };
+
+  const getPriorityClass = (priority: string): string => {
+    switch (priority) {
+      case 'high': return 'bg-red-500';
+      case 'medium': return 'bg-yellow-500';
+      case 'low': return 'bg-green-500';
+      default: return 'bg-gray-500';
+    }
+  };
+
+  const getPaymentStatusClass = (status: string): string => {
+    switch (status) {
+      case 'paid': return 'bg-green-500';
+      case 'partial': return 'bg-yellow-500';
+      case 'unpaid': return 'bg-red-500';
+      default: return 'bg-gray-500';
+    }
+  };
   
   const formatDateTime = (dateString: string): string => {
     try {
       return formatDistanceToNow(new Date(dateString), { addSuffix: true });
+    } catch (error) {
+      return 'Invalid date';
+    }
+  };
+
+  const formatDate = (dateString?: string): string => {
+    if (!dateString) return 'Not set';
+    try {
+      return new Date(dateString).toLocaleDateString();
     } catch (error) {
       return 'Invalid date';
     }
@@ -54,9 +81,16 @@ const RepairTicketCard: React.FC<RepairTicketCardProps> = ({
               </CardDescription>
             )}
           </div>
-          <Badge className={getStatusClass(repair.status)}>
-            {repair.status.charAt(0).toUpperCase() + repair.status.slice(1)}
-          </Badge>
+          <div className="flex gap-2">
+            {repair.priority && (
+              <Badge className={getPriorityClass(repair.priority)}>
+                {repair.priority.charAt(0).toUpperCase() + repair.priority.slice(1)} Priority
+              </Badge>
+            )}
+            <Badge className={getStatusClass(repair.status)}>
+              {repair.status.charAt(0).toUpperCase() + repair.status.slice(1)}
+            </Badge>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
@@ -71,10 +105,32 @@ const RepairTicketCard: React.FC<RepairTicketCardProps> = ({
             <p className="text-sm">{repair.serialNumber}</p>
           </div>
           
+          <div className="flex items-center">
+            <p className="text-xs text-muted-foreground mr-1">Payment</p>
+            <Badge className={getPaymentStatusClass(repair.paymentStatus || 'unpaid')}>
+              {repair.paymentStatus ? (repair.paymentStatus.charAt(0).toUpperCase() + repair.paymentStatus.slice(1)) : 'Unpaid'}
+            </Badge>
+          </div>
+
+          <div>
+            <p className="text-xs text-muted-foreground">Est. Completion</p>
+            <p className="text-sm flex items-center">
+              <Clock className="h-3 w-3 mr-1" />
+              {formatDate(repair.estimatedCompletionDate)}
+            </p>
+          </div>
+          
           <div>
             <p className="text-xs text-muted-foreground">Cost Estimate</p>
             <p className="text-sm">${repair.estimatedCost.toFixed(2)}</p>
           </div>
+          
+          {repair.paymentStatus === 'partial' && (
+            <div>
+              <p className="text-xs text-muted-foreground">Amount Paid</p>
+              <p className="text-sm">${repair.amountPaid?.toFixed(2) || '0.00'}</p>
+            </div>
+          )}
           
           {repair.finalCost !== null && (
             <div>

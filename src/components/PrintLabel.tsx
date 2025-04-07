@@ -2,8 +2,9 @@
 import React from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { RepairTicket } from '@/data/mockData';
-import { Printer } from 'lucide-react';
+import { Printer, Clock } from 'lucide-react';
 
 interface PrintLabelProps {
   repair: RepairTicket | null;
@@ -19,6 +20,24 @@ const PrintLabel: React.FC<PrintLabelProps> = ({ repair, customer, onPrint, onCl
   if (!repair || !customer) {
     return null;
   }
+  
+  const getPriorityClass = (priority: string): string => {
+    switch (priority) {
+      case 'high': return 'bg-red-500';
+      case 'medium': return 'bg-yellow-500';
+      case 'low': return 'bg-green-500';
+      default: return 'bg-gray-500';
+    }
+  };
+
+  const formatDate = (dateString?: string): string => {
+    if (!dateString) return 'Not set';
+    try {
+      return new Date(dateString).toLocaleDateString();
+    } catch (error) {
+      return 'Invalid date';
+    }
+  };
   
   return (
     <>
@@ -40,6 +59,23 @@ const PrintLabel: React.FC<PrintLabelProps> = ({ repair, customer, onPrint, onCl
               <div>
                 <p className="text-xs text-muted-foreground">Ticket ID</p>
                 <p className="font-semibold">{repair.id}</p>
+              </div>
+              
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="text-xs text-muted-foreground">Priority</p>
+                  <Badge className={getPriorityClass(repair.priority || 'medium')}>
+                    {repair.priority ? repair.priority.toUpperCase() : 'MEDIUM'}
+                  </Badge>
+                </div>
+                
+                <div>
+                  <p className="text-xs text-muted-foreground">Est. Completion</p>
+                  <p className="font-medium text-sm flex items-center">
+                    <Clock className="h-3 w-3 mr-1" />
+                    {formatDate(repair.estimatedCompletionDate)}
+                  </p>
+                </div>
               </div>
               
               <div>

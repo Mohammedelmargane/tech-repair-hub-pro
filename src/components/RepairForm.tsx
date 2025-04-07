@@ -36,6 +36,10 @@ const RepairForm: React.FC<RepairFormProps> = ({ customerId, repairToEdit }) => 
     estimatedCost: number;
     finalCost: number | null;
     notes: string;
+    priority: 'low' | 'medium' | 'high';
+    estimatedCompletionDate: string;
+    paymentStatus: 'unpaid' | 'partial' | 'paid';
+    amountPaid: number;
   }>({
     customerId: customerId || '',
     deviceType: '',
@@ -46,13 +50,22 @@ const RepairForm: React.FC<RepairFormProps> = ({ customerId, repairToEdit }) => 
     status: 'pending',
     estimatedCost: 0,
     finalCost: null,
-    notes: ''
+    notes: '',
+    priority: 'medium',
+    estimatedCompletionDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Default to 3 days from now
+    paymentStatus: 'unpaid',
+    amountPaid: 0
   });
 
   useEffect(() => {
     if (repairToEdit) {
       setFormData({
-        ...repairToEdit
+        ...repairToEdit,
+        priority: repairToEdit.priority || 'medium',
+        estimatedCompletionDate: repairToEdit.estimatedCompletionDate || 
+          new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        paymentStatus: repairToEdit.paymentStatus || 'unpaid',
+        amountPaid: repairToEdit.amountPaid || 0
       });
     }
   }, [repairToEdit]);
@@ -179,6 +192,36 @@ const RepairForm: React.FC<RepairFormProps> = ({ customerId, repairToEdit }) => 
                 required
               />
             </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="priority">Priority</Label>
+              <Select 
+                value={formData.priority} 
+                onValueChange={(value: 'low' | 'medium' | 'high') => 
+                  handleSelectChange('priority', value)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="low">Low</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="high">High</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="estimatedCompletionDate">Estimated Completion Date</Label>
+              <Input 
+                id="estimatedCompletionDate" 
+                name="estimatedCompletionDate" 
+                type="date"
+                value={formData.estimatedCompletionDate}
+                onChange={handleChange}
+                required
+              />
+            </div>
             
             <div className="space-y-2 md:col-span-2">
               <Label htmlFor="problemDescription">Problem Description</Label>
@@ -224,6 +267,38 @@ const RepairForm: React.FC<RepairFormProps> = ({ customerId, repairToEdit }) => 
                   <SelectItem value="cancelled">Cancelled</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="paymentStatus">Payment Status</Label>
+              <Select 
+                value={formData.paymentStatus} 
+                onValueChange={(value: 'unpaid' | 'partial' | 'paid') => 
+                  handleSelectChange('paymentStatus', value)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="unpaid">Unpaid</SelectItem>
+                  <SelectItem value="partial">Partial Payment</SelectItem>
+                  <SelectItem value="paid">Paid</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="amountPaid">Amount Paid ($)</Label>
+              <Input 
+                id="amountPaid" 
+                name="amountPaid" 
+                type="number"
+                min="0"
+                step="0.01"
+                value={formData.amountPaid}
+                onChange={handleNumberChange}
+                required
+              />
             </div>
             
             {formData.status === 'completed' && (
