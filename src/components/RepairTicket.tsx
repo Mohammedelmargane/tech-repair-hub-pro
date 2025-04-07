@@ -5,8 +5,9 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { RepairTicket } from '@/data/mockData';
 import { formatDistanceToNow } from 'date-fns';
-import { Printer, AlertCircle, Clock, CreditCard, History } from 'lucide-react';
+import { Printer, AlertCircle, Clock, CreditCard, History, MessageSquare } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import WhatsAppMessage from './WhatsAppMessage';
 
 interface RepairTicketCardProps {
   repair: RepairTicket;
@@ -219,6 +220,8 @@ const RepairTicketCard: React.FC<RepairTicketCardProps> = ({
         )}
       </CardContent>
       <CardFooter className="flex justify-end space-x-2">
+        <WhatsAppMessage customerId={repair.customerId} repairId={repair.id} />
+        
         <Button 
           variant="outline" 
           size="sm"
