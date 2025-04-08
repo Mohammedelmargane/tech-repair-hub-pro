@@ -15,6 +15,9 @@ import Login from "./pages/Login";
 import Reports from "./pages/Reports";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider } from "./contexts/AuthContext";
+import EditPart from "./pages/inventory/EditPart";
+import NewPart from "./pages/inventory/NewPart";
+import NewOrder from "./pages/inventory/NewOrder";
 
 const queryClient = new QueryClient();
 
@@ -55,6 +58,21 @@ const App = () => (
             <Route path="/inventory" element={
               <ProtectedRoute allowedRoles={['admin', 'technician']}>
                 <Inventory />
+              </ProtectedRoute>
+            } />
+            <Route path="/inventory/edit-part/:id" element={
+              <ProtectedRoute allowedRoles={['admin', 'technician']}>
+                <EditPart />
+              </ProtectedRoute>
+            } />
+            <Route path="/inventory/new-part" element={
+              <ProtectedRoute allowedRoles={['admin', 'technician']}>
+                <NewPart />
+              </ProtectedRoute>
+            } />
+            <Route path="/inventory/new-order" element={
+              <ProtectedRoute allowedRoles={['admin', 'technician']}>
+                <NewOrder />
               </ProtectedRoute>
             } />
             <Route path="/reports" element={
