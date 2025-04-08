@@ -1,14 +1,17 @@
 
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { loginUser } from '@/data/mockData';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -20,8 +23,14 @@ const Login: React.FC = () => {
     try {
       const user = await loginUser(email, password);
       if (user) {
+        // Call the login function from AuthContext with the user id
+        login(user.id);
+        
         toast.success(`Welcome back, ${user.name}!`);
-        navigate('/');
+        
+        // Redirect to the intended page or home
+        const from = location.state?.from?.pathname || '/';
+        navigate(from, { replace: true });
       } else {
         toast.error('Invalid email or password');
       }
@@ -59,9 +68,10 @@ const Login: React.FC = () => {
                 <label htmlFor="password" className="block text-sm font-medium">
                   Password
                 </label>
-                <Link to="/forgot-password" className="text-sm text-primary hover:underline">
+                {/* The link below is causing a 404 error, let's remove it for now */}
+                {/* <Link to="/forgot-password" className="text-sm text-primary hover:underline">
                   Forgot password?
-                </Link>
+                </Link> */}
               </div>
               <Input
                 id="password"
