@@ -11,6 +11,10 @@ import EditRepair from "./pages/EditRepair";
 import BarcodeSearchPage from "./pages/BarcodeSearchPage";
 import NotFound from "./pages/NotFound";
 import Inventory from "./pages/Inventory";
+import Login from "./pages/Login";
+import Reports from "./pages/Reports";
+import ProtectedRoute from "./components/ProtectedRoute";
+import { AuthProvider } from "./contexts/AuthContext";
 
 const queryClient = new QueryClient();
 
@@ -19,17 +23,49 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/customer/:id" element={<Customer />} />
-          <Route path="/new-repair" element={<NewRepair />} />
-          <Route path="/edit-repair/:id" element={<EditRepair />} />
-          <Route path="/barcode-search" element={<BarcodeSearchPage />} />
-          <Route path="/inventory" element={<Inventory />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/" element={
+              <ProtectedRoute>
+                <Index />
+              </ProtectedRoute>
+            } />
+            <Route path="/customer/:id" element={
+              <ProtectedRoute>
+                <Customer />
+              </ProtectedRoute>
+            } />
+            <Route path="/new-repair" element={
+              <ProtectedRoute allowedRoles={['admin', 'technician', 'customer_service']}>
+                <NewRepair />
+              </ProtectedRoute>
+            } />
+            <Route path="/edit-repair/:id" element={
+              <ProtectedRoute allowedRoles={['admin', 'technician']}>
+                <EditRepair />
+              </ProtectedRoute>
+            } />
+            <Route path="/barcode-search" element={
+              <ProtectedRoute>
+                <BarcodeSearchPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/inventory" element={
+              <ProtectedRoute allowedRoles={['admin', 'technician']}>
+                <Inventory />
+              </ProtectedRoute>
+            } />
+            <Route path="/reports" element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <Reports />
+              </ProtectedRoute>
+            } />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

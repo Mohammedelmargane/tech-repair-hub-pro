@@ -8,9 +8,12 @@ import Navbar from '@/components/Navbar';
 import CustomerList from '@/components/CustomerList';
 import RepairTicketCard from '@/components/RepairTicket';
 import PrintLabel from '@/components/PrintLabel';
+import RemindersPanel from '@/components/RemindersPanel';
+import { useAuth } from '@/contexts/AuthContext';
 import { repairs, getCustomerById, RepairTicket } from '@/data/mockData';
 
 const Dashboard: React.FC = () => {
+  const { user } = useAuth();
   const [selectedRepair, setSelectedRepair] = useState<RepairTicket | null>(null);
   const [selectedCustomer, setSelectedCustomer] = useState<{ id: string; name: string } | null>(null);
   const [showPrintModal, setShowPrintModal] = useState(false);
@@ -38,11 +41,32 @@ const Dashboard: React.FC = () => {
     setShowPrintModal(false);
   };
   
+  // Check if user has permission to see reports
+  const canAccessReports = user?.role === 'admin';
+  
   return (
     <div className="flex min-h-screen flex-col">
       <Navbar />
       
       <div className="container py-6 flex-1">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold">Dashboard</h1>
+          
+          <div className="flex gap-2 items-center">
+            {/* Only show reminders to those who need to see them */}
+            {(user?.role === 'admin' || user?.role === 'customer_service') && (
+              <RemindersPanel />
+            )}
+            
+            {/* Only show reports link to admins */}
+            {canAccessReports && (
+              <Link to="/reports" className={buttonVariants({ variant: "outline" })}>
+                Reports & Analytics
+              </Link>
+            )}
+          </div>
+        </div>
+        
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           <div className="lg:col-span-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -82,9 +106,12 @@ const Dashboard: React.FC = () => {
                   <TabsTrigger value="completed">Completed</TabsTrigger>
                 </TabsList>
                 
-                <Link to="/new-repair" className={buttonVariants({ variant: "default" })}>
-                  New Repair
-                </Link>
+                {/* Only show new repair button to authorized roles */}
+                {(user?.role === 'admin' || user?.role === 'technician' || user?.role === 'customer_service') && (
+                  <Link to="/new-repair" className={buttonVariants({ variant: "default" })}>
+                    New Repair
+                  </Link>
+                )}
               </div>
               
               <TabsContent value="active" className="space-y-6">
@@ -141,8 +168,8 @@ const Dashboard: React.FC = () => {
         <PrintLabel
           repair={selectedRepair}
           customer={selectedCustomer}
-          onPrint={handlePrint}
           onClose={() => setShowPrintModal(false)}
+          onPrint={handlePrint}
         />
       )}
     </div>

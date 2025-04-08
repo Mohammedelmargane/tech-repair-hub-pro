@@ -72,7 +72,14 @@ export interface OrderItem {
   unitPrice: number;
 }
 
-// Demo data
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: 'admin' | 'technician' | 'customer_service' | 'cashier';
+  password: string; // In a real app, this would be hashed
+}
+
 export const customers: Customer[] = [
   {
     id: "C001",
@@ -198,7 +205,6 @@ export const repairs: RepairTicket[] = [
   }
 ];
 
-// Parts inventory
 export const parts: Part[] = [
   {
     id: "P001",
@@ -262,7 +268,6 @@ export const parts: Part[] = [
   }
 ];
 
-// Suppliers
 export const suppliers: Supplier[] = [
   {
     id: "S001",
@@ -293,7 +298,6 @@ export const suppliers: Supplier[] = [
   }
 ];
 
-// Part orders
 export const partOrders: PartOrder[] = [
   {
     id: "O001",
@@ -328,7 +332,259 @@ export const partOrders: PartOrder[] = [
   }
 ];
 
-// Helper functions for data manipulation
+export const users: User[] = [
+  {
+    id: 'user1',
+    name: 'Admin User',
+    email: 'admin@repairshop.com',
+    role: 'admin',
+    password: 'admin123',
+  },
+  {
+    id: 'user2',
+    name: 'Tech Support',
+    email: 'tech@repairshop.com',
+    role: 'technician',
+    password: 'tech123',
+  },
+  {
+    id: 'user3',
+    name: 'Customer Service',
+    email: 'service@repairshop.com',
+    role: 'customer_service',
+    password: 'service123',
+  },
+  {
+    id: 'user4',
+    name: 'Cashier',
+    email: 'cashier@repairshop.com',
+    role: 'cashier',
+    password: 'cashier123',
+  },
+];
+
+export function loginUser(email: string, password: string): User | null {
+  const user = users.find(u => u.email === email && u.password === password);
+  return user ? { ...user, password: '*****' } : null;
+}
+
+export function getUserById(id: string): User | null {
+  const user = users.find(u => u.id === id);
+  return user ? { ...user, password: '*****' } : null;
+}
+
+export interface EmployeePerformance {
+  userId: string;
+  repairsCompleted: number;
+  avgRepairTime: number; // in days
+  customerSatisfaction: number; // out of 5
+}
+
+export const employeePerformance: EmployeePerformance[] = [
+  {
+    userId: 'user1',
+    repairsCompleted: 45,
+    avgRepairTime: 1.8,
+    customerSatisfaction: 4.8,
+  },
+  {
+    userId: 'user2',
+    repairsCompleted: 87,
+    avgRepairTime: 2.1,
+    customerSatisfaction: 4.5,
+  },
+  {
+    userId: 'user3',
+    repairsCompleted: 32,
+    avgRepairTime: 2.4,
+    customerSatisfaction: 4.7,
+  },
+  {
+    userId: 'user4',
+    repairsCompleted: 12,
+    avgRepairTime: 3.2,
+    customerSatisfaction: 4.3,
+  },
+];
+
+export interface Reminder {
+  id: string;
+  repairId: string;
+  customerId: string;
+  customerName: string;
+  deviceType: string;
+  status: string;
+  daysOverdue: number;
+  reminderSent: boolean;
+}
+
+export const reminders: Reminder[] = [
+  {
+    id: 'rem1',
+    repairId: 'rep2',
+    customerId: 'cus2',
+    customerName: 'Jane Smith',
+    deviceType: 'Laptop',
+    status: 'Completed',
+    daysOverdue: 5,
+    reminderSent: false
+  },
+  {
+    id: 'rem2',
+    repairId: 'rep4',
+    customerId: 'cus4',
+    customerName: 'Carlos Rodriguez',
+    deviceType: 'Smartphone',
+    status: 'Completed',
+    daysOverdue: 8,
+    reminderSent: false
+  },
+  {
+    id: 'rem3',
+    repairId: 'rep6',
+    customerId: 'cus6',
+    customerName: 'Emily Johnson',
+    deviceType: 'Tablet',
+    status: 'Completed',
+    daysOverdue: 3,
+    reminderSent: true
+  },
+];
+
+export function getOverdueRepairs(): Reminder[] {
+  return reminders;
+}
+
+export function sendCustomerReminder(reminderId: string): boolean {
+  const reminder = reminders.find(r => r.id === reminderId);
+  if (!reminder) return false;
+  
+  reminder.reminderSent = true;
+  return true;
+}
+
+export interface SalesReportData {
+  totalSales: number;
+  percentChange: number;
+  chartData: Array<{ name: string; repairs: number; parts: number }>;
+  categoryBreakdown: Array<{ name: string; amount: number; percentage: number }>;
+}
+
+export interface RepairReportData {
+  totalRepairs: number;
+  avgRepairTime: number;
+  avgSatisfaction: number;
+  totalFeedbacks: number;
+  repairTypes: Array<{ name: string; value: number }>;
+  repairTimeData: Array<{ name: string; time: number }>;
+  commonIssues: Array<{ name: string; count: number; avgTime: number; avgCost: number }>;
+}
+
+export interface EmployeeReportData {
+  performanceData: Array<{ name: string; completed: number; satisfaction: number }>;
+  employeeData: Array<{
+    name: string;
+    role: string;
+    repairsCompleted: number;
+    avgRepairTime: number;
+    satisfaction: number;
+    status: 'Excellent' | 'Good' | 'Needs Improvement';
+  }>;
+}
+
+export function generateSalesReport(timeRange: string): SalesReportData {
+  return {
+    totalSales: 15670.50,
+    percentChange: 12.3,
+    chartData: [
+      { name: 'Jan', repairs: 4000, parts: 2400 },
+      { name: 'Feb', repairs: 3000, parts: 1398 },
+      { name: 'Mar', repairs: 2000, parts: 9800 },
+      { name: 'Apr', repairs: 2780, parts: 3908 },
+      { name: 'May', repairs: 1890, parts: 4800 },
+      { name: 'Jun', repairs: 2390, parts: 3800 },
+    ],
+    categoryBreakdown: [
+      { name: 'Screen Repairs', amount: 5320.00, percentage: 34 },
+      { name: 'Battery Replacements', amount: 2840.50, percentage: 18 },
+      { name: 'Water Damage', amount: 2210.00, percentage: 14 },
+      { name: 'Parts Sales', amount: 3560.00, percentage: 23 },
+      { name: 'Other Services', amount: 1740.00, percentage: 11 },
+    ],
+  };
+}
+
+export function generateRepairReport(timeRange: string): RepairReportData {
+  return {
+    totalRepairs: 187,
+    avgRepairTime: 2.3,
+    avgSatisfaction: 4.7,
+    totalFeedbacks: 142,
+    repairTypes: [
+      { name: 'Smartphones', value: 98 },
+      { name: 'Laptops', value: 45 },
+      { name: 'Tablets', value: 28 },
+      { name: 'Desktops', value: 10 },
+      { name: 'Other', value: 6 },
+    ],
+    repairTimeData: [
+      { name: 'Screen Repair', time: 1.5 },
+      { name: 'Battery Replace', time: 0.8 },
+      { name: 'Water Damage', time: 3.2 },
+      { name: 'Data Recovery', time: 2.7 },
+      { name: 'Motherboard Fix', time: 4.5 },
+    ],
+    commonIssues: [
+      { name: 'Cracked Screen', count: 68, avgTime: 1.5, avgCost: 120.50 },
+      { name: 'Battery Issues', count: 42, avgTime: 0.8, avgCost: 75.20 },
+      { name: 'Water Damage', count: 35, avgTime: 3.2, avgCost: 210.75 },
+      { name: 'Slow Performance', count: 22, avgTime: 2.1, avgCost: 95.00 },
+      { name: 'Charging Problems', count: 20, avgTime: 1.3, avgCost: 85.50 },
+    ],
+  };
+}
+
+export function generateEmployeeReport(timeRange: string): EmployeeReportData {
+  return {
+    performanceData: users.map((user, index) => {
+      const performance = employeePerformance.find(e => e.userId === user.id) || {
+        repairsCompleted: 0,
+        avgRepairTime: 0,
+        customerSatisfaction: 0
+      };
+      
+      return {
+        name: user.name,
+        completed: performance.repairsCompleted,
+        satisfaction: performance.customerSatisfaction * 10, // Scale up for chart
+      };
+    }),
+    employeeData: users.map((user) => {
+      const performance = employeePerformance.find(e => e.userId === user.id) || {
+        repairsCompleted: 0,
+        avgRepairTime: 0,
+        customerSatisfaction: 0
+      };
+      
+      let status: 'Excellent' | 'Good' | 'Needs Improvement' = 'Good';
+      if (performance.customerSatisfaction >= 4.5) {
+        status = 'Excellent';
+      } else if (performance.customerSatisfaction < 4.0) {
+        status = 'Needs Improvement';
+      }
+      
+      return {
+        name: user.name,
+        role: user.role,
+        repairsCompleted: performance.repairsCompleted,
+        avgRepairTime: performance.avgRepairTime,
+        satisfaction: performance.customerSatisfaction,
+        status
+      };
+    }),
+  };
+}
+
 export const getCustomerById = (id: string): Customer | undefined => {
   return customers.find(customer => customer.id === id);
 };
