@@ -10,6 +10,7 @@ import NewRepair from "./pages/NewRepair";
 import EditRepair from "./pages/EditRepair";
 import BarcodeSearchPage from "./pages/BarcodeSearchPage";
 import NotFound from "./pages/NotFound";
+import Inventory from "./pages/Inventory";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +26,7 @@ const App = () => (
           <Route path="/new-repair" element={<NewRepair />} />
           <Route path="/edit-repair/:id" element={<EditRepair />} />
           <Route path="/barcode-search" element={<BarcodeSearchPage />} />
+          <Route path="/inventory" element={<Inventory />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

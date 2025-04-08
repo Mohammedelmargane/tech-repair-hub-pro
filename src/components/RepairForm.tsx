@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from 'sonner';
-import { RepairTicket, addRepair, updateRepair } from '@/data/mockData';
+import { RepairTicket, addRepair, updateRepair, updatePartStock } from '@/data/mockData';
 import { RepairFormProvider, useRepairForm } from '@/contexts/RepairFormContext';
 
 // Import form sections
@@ -14,6 +14,7 @@ import PriorityAndDateSection from './repair-form/PriorityAndDateSection';
 import ProblemDescriptionSection from './repair-form/ProblemDescriptionSection';
 import CostAndStatusSection from './repair-form/CostAndStatusSection';
 import NotesSection from './repair-form/NotesSection';
+import PartsUsedSection from './repair-form/PartsUsedSection';
 
 interface RepairFormProps {
   customerId?: string;
@@ -33,6 +34,22 @@ const RepairFormContent: React.FC = () => {
         const updatedRepair = updateRepair({
           ...formData as RepairTicket
         });
+        
+        // If repair is completed, deduct parts from inventory
+        if (updatedRepair.status === 'completed' && updatedRepair.partsUsed) {
+          try {
+            const partsUsed = JSON.parse(updatedRepair.partsUsed);
+            partsUsed.forEach((item: { partId: string, quantity: number }) => {
+              // Negative quantity because we're removing from stock
+              updatePartStock(item.partId, -item.quantity);
+            });
+            toast.success("Inventory updated");
+          } catch (error) {
+            console.error("Error updating inventory:", error);
+            toast.error("Failed to update inventory");
+          }
+        }
+        
         toast.success("Repair ticket updated");
         navigate(`/customer/${updatedRepair.customerId}`);
       } else {
@@ -60,8 +77,11 @@ const RepairFormContent: React.FC = () => {
             <PriorityAndDateSection />
             <ProblemDescriptionSection />
             <CostAndStatusSection />
-            <NotesSection />
           </div>
+          
+          <PartsUsedSection />
+          
+          <NotesSection />
         </CardContent>
         
         <CardFooter className="flex justify-between">
