@@ -17,6 +17,7 @@ type RepairFormData = {
   paymentStatus: 'unpaid' | 'partial' | 'paid';
   amountPaid: number;
   repairNotes?: string;
+  partsUsed?: string; // JSON string containing parts used in repair
 };
 
 type RepairFormContextType = {
@@ -43,7 +44,8 @@ const defaultFormData: RepairFormData = {
   estimatedCompletionDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
   paymentStatus: 'unpaid',
   amountPaid: 0,
-  repairNotes: '[]'
+  repairNotes: '[]',
+  partsUsed: '[]' // Initialize with empty array in string format
 };
 
 const RepairFormContext = createContext<RepairFormContextType | undefined>(undefined);
@@ -78,7 +80,8 @@ export const RepairFormProvider: React.FC<RepairFormProviderProps> = ({
           new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         paymentStatus: repairToEdit.paymentStatus || 'unpaid',
         amountPaid: repairToEdit.amountPaid || 0,
-        repairNotes: repairToEdit.repairNotes || '[]'
+        repairNotes: repairToEdit.repairNotes || '[]',
+        partsUsed: repairToEdit.partsUsed || '[]'
       };
     }
     
